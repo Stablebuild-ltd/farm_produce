@@ -1,0 +1,2 @@
+#!/bin/bash
+curl -f http://localhost:5000/ && curl -f http://localhost:5000/login && curl -f http://localhost:5000/dashboard && pytest && sqlite3 :memory: ".dump" | grep "test" && echo "All tests passed: Docker setup, app running, endpoints functional, DB validated." || echo "Failure: Issue in setup, app, endpoints, or DB."

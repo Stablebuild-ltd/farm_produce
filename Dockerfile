@@ -1,4 +1,7 @@
 FROM base_image
 WORKDIR /testbed
-RUN git clone https://github.com/sahaanadas/FarmPay.git . && pyenv global 3.11.12 && pip install flask flask-login flask-bootstrap pytest hashlib && pip install -r requirements.txt || true
+ENV PATH=/root/.pyenv/shims:/root/.pyenv/bin:${PATH}
+COPY . .
+RUN pyenv global 3.11.12 && pip install -r requirements.txt
+EXPOSE 5000
 CMD ["python", "app.py"]
