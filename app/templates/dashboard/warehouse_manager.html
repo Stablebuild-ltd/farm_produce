@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="bi bi-house-door"></i> Warehouse Manager Dashboard</h2>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-building"></i> Warehouses</h5>
+            </div>
+            <div class="card-body">
+                {% if warehouses %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Location</th>
+                                    <th>Capacity</th>
+                                    <th>Current Stock</th>
+                                    <th>Utilization</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for warehouse in warehouses %}
+                                {% set utilization = (warehouse.current_stock / warehouse.capacity * 100) if warehouse.capacity > 0 else 0 %}
+                                <tr>
+                                    <td>{{ warehouse.name }}</td>
+                                    <td>{{ warehouse.location }}</td>
+                                    <td>{{ "%.1f"|format(warehouse.capacity) }} tons</td>
+                                    <td>{{ "%.1f"|format(warehouse.current_stock) }} tons</td>
+                                    <td>
+                                        <div class="progress" style="width: 80px;">
+                                            <div class="progress-bar bg-{{ 'success' if utilization < 80 else 'warning' if utilization < 95 else 'danger' }}"
+                                                 style="width: {{ utilization }}%">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">{{ "%.0f"|format(utilization) }}%</small>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('warehouse.view_warehouse', warehouse_id=warehouse.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No warehouses configured.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-box-seam"></i> Stored Products</h5>
+            </div>
+            <div class="card-body">
+                {% if stored_products %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Farmer</th>
+                                    <th>Status</th>
+                                    <th>Quantity</th>
+                                    <th>Warehouse</th>
+                                    <th>Last Update</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tracking in stored_products %}
+                                <tr>
+                                    <td>{{ tracking.product.product_type.title() }}</td>
+                                    <td>{{ tracking.product.farmer.username }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if tracking.status == 'stored' else 'warning' if tracking.status == 'processing' else 'info' }}">
+                                            {{ tracking.status.title() }}
+                                        </span>
+                                    </td>
+                                    <td>{{ "%.1f"|format(tracking.quantity) }} kg</td>
+                                    <td>{{ tracking.warehouse.name }}</td>
+                                    <td>{{ tracking.transition_date.strftime('%m/%d %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No products in storage.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-plus-circle"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="{{ url_for('warehouse.new_warehouse') }}" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="bi bi-building"></i> Add Warehouse
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('product.list_products') }}" class="btn btn-outline-success w-100 mb-2">
+                            <i class="bi bi-box-seam"></i> View All Products
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('warehouse.list_warehouses') }}" class="btn btn-outline-warning w-100 mb-2">
+                            <i class="bi bi-list-check"></i> Manage Warehouses
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-info w-100 mb-2" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh Status
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

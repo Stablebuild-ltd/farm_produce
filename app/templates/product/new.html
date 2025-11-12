@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h3 class="card-title mb-0"><i class="bi bi-plus-circle"></i> Add New Product</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.product_type.label(class="form-label") }}
+                            {{ form.product_type(class="form-select") }}
+                            {% if form.product_type.errors %}
+                                {% for error in form.product_type.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.variety.label(class="form-label") }}
+                            {{ form.variety(class="form-control", placeholder="e.g., Roma, Cherry, etc.") }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.quantity.label(class="form-label") }}
+                            {{ form.quantity(class="form-control", step="0.1", min="0.1") }}
+                            {% if form.quantity.errors %}
+                                {% for error in form.quantity.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.quality_grade.label(class="form-label") }}
+                            {{ form.quality_grade(class="form-select") }}
+                            {% if form.quality_grade.errors %}
+                                {% for error in form.quality_grade.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('product.list_products') }}" class="btn btn-outline-secondary me-md-2">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-info-circle"></i> Product Registration Info</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">When you submit this form:</p>
+                <ul class="mb-0">
+                    <li>A unique hash will be generated for traceability</li>
+                    <li>The product will be marked as "pending" status</li>
+                    <li>Plant/Warehouse managers will be able to track its progress</li>
+                    <li>You can monitor the product's journey through the supply chain</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

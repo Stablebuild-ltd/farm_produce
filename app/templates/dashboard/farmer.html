@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-person-check"></i> Farmer Dashboard</h2>
+            <a href="{{ url_for('product.new_product') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Add New Product
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-box-seam"></i> My Products</h5>
+            </div>
+            <div class="card-body">
+                {% if products %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Quantity</th>
+                                    <th>Grade</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td>{{ product.product_type.title() }}</td>
+                                    <td>{{ "%.1f"|format(product.quantity) }} kg</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if product.quality_grade == 'A' else 'warning' if product.quality_grade == 'B' else 'danger' }}">
+                                            Grade {{ product.quality_grade }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% set latest_tracking = product.trackings|sort(attribute='transition_date', reverse=true)|first %}
+                                        {% if latest_tracking %}
+                                            <span class="badge bg-info">{{ latest_tracking.status.title() }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('product.view_product', product_id=product.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No products added yet. <a href="{{ url_for('product.new_product') }}">Add your first product</a>.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-clock-history"></i> Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_trackings %}
+                    <div class="timeline">
+                        {% for tracking in recent_trackings %}
+                        <div class="timeline-item mb-3">
+                            <div class="timeline-marker bg-{{ 'success' if tracking.status == 'stored' else 'warning' if tracking.status == 'processing' else 'info' }}"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">{{ tracking.product.product_type.title() }} - {{ tracking.status.title() }}</h6>
+                                <p class="mb-1 text-muted small">
+                                    {{ "%.1f"|format(tracking.quantity) }} kg at {{ tracking.warehouse.name }}
+                                </p>
+                                <small class="text-muted">{{ tracking.transition_date.strftime('%Y-%m-%d %H:%M') }}</small>
+                                {% if tracking.quality_notes %}
+                                    <p class="mt-1 small">{{ tracking.quality_notes }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No recent activity.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0"><i class="bi bi-graph-up"></i> Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="border rounded p-3">
+                            <h3 class="text-success">{{ products|length }}</h3>
+                            <p class="mb-0">Total Products</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3">
+                            <h3 class="text-primary">{{ "%.1f"|format(products|sum(attribute='quantity')) }}</h3>
+                            <p class="mb-0">Total Quantity (kg)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3">
+                            <h3 class="text-warning">{{ recent_trackings|length }}</h3>
+                            <p class="mb-0">Recent Updates</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3">
+                            <h3 class="text-info">{{ products|selectattr('quality_grade', 'equalto', 'A')|list|length }}</h3>
+                            <p class="mb-0">Grade A Products</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-left: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -45px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #dee2e6;
+}
+
+.timeline-content {
+    padding-left: 15px;
+    border-left: 2px solid #dee2e6;
+    padding-bottom: 15px;
+}
+</style>
+{% endblock %}

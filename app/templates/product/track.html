@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h3 class="card-title mb-0"><i class="bi bi-plus-circle"></i> Track Product: {{ product.product_type.title() }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Product Hash:</strong> <code>{{ product.unique_hash[:32] }}...</code><br>
+                    <strong>Farmer:</strong> {{ product.farmer.username }}<br>
+                    <strong>Original Quantity:</strong> {{ "%.1f"|format(product.quantity) }} kg
+                </div>
+
+                <hr>
+
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.warehouse_id.label(class="form-label") }}
+                            {{ form.warehouse_id(class="form-select") }}
+                            {% if form.warehouse_id.errors %}
+                                {% for error in form.warehouse_id.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.status.label(class="form-label") }}
+                            {{ form.status(class="form-select") }}
+                            {% if form.status.errors %}
+                                {% for error in form.status.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.quantity.label(class="form-label") }}
+                        {{ form.quantity(class="form-control", step="0.1", min="0.1", max=product.quantity|string) }}
+                        <small class="text-muted">Maximum: {{ "%.1f"|format(product.quantity) }} kg</small>
+                        {% if form.quantity.errors %}
+                            {% for error in form.quantity.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.quality_notes.label(class="form-label") }}
+                        {{ form.quality_notes(class="form-control", rows="3", placeholder="Any notes about quality, processing, or special handling...") }}
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('product.view_product', product_id=product.id) }}" class="btn btn-outline-secondary me-md-2">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
